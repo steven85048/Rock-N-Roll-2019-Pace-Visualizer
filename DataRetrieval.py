@@ -1,4 +1,6 @@
 import requests
+import pickle
+import atexit
 from bs4 import BeautifulSoup
 
 ID_LOW = 1
@@ -6,25 +8,48 @@ ID_HIGH = 9999
 
 BASE_URL = "https://www.runrocknroll.com/en/events/arizona/the-races/half-marathon/2019-results/athlete?id="
 
+DATA_FILE = "datafile.txt"
+METADATA_FILE = "metadata.txt"
+
+# we record where we were at during the exit so we can get back to it; first line of file should be the line stopped
+stoppedLine = 0
+try:
+    metadata = open( METADATA_FILE, "r" )
+    stoppedLine = int( metadata.readline() )
+    ID_LOW = stoppedLine
+except:
+    pass
+
+@atexit.register
+def recordLineStopped():
+    print( stoppedLine )
+    metadataWrite = open( METADATA_FILE, "w" )
+    metadataWrite.write( str( stoppedLine ) )
+
 class DataRetrieval:
-    def __init__( self, strategy ):
+    def __init__( self ):
         self.retrievedRunners = []
 
-        # should use strategy design but w/e
-        if( strategy == 0 ):
-            self._retrieveDataWithScraping()
-        else:
-            self._retrieveDataWithFile()
+        self._fileToAppend = open(DATA_FILE, "ab")
+        self._retrieveDataWithScraping()
 
     def getPoints( self ):
-        return self.retrievedRunners
+        return None
 
     def _retrieveDataWithScraping( self ):
         for bibId in range( ID_LOW, ID_HIGH ):
             scrapeURL = BASE_URL + str( bibId )
             retrievedRunner = self._scrapeAtUrl( scrapeURL )
+
+            # order matters; we want to make sure the request has finished
+            global stoppedLine
+            stoppedLine = bibId + 1
+
             if( retrievedRunner != None ):
                 self.retrievedRunners.append( retrievedRunner )
+                runnerAsByteString = pickle.dumps( retrievedRunner )
+                self._fileToAppend.write( runnerAsByteString )
+
 
     def _scrapeAtUrl( self, url ):
         currentPage = requests.get( url )
