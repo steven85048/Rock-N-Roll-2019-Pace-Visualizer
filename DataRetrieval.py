@@ -50,12 +50,10 @@ class DataRetrieval:
             scrapeURL = BASE_URL + str( bibId )
             retrievedRunner = self._scrapeAtUrl( scrapeURL )
 
-            # order matters; we want to make sure the request has finished
-            global stoppedLine
-
             if( retrievedRunner != None ):
                 pickle.dump( retrievedRunner, self._fileToAppend )
 
+            global stoppedLine
             stoppedLine = bibId + 1
 
     def _scrapeAtUrl( self, url ):
