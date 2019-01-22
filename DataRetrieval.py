@@ -27,29 +27,36 @@ def recordLineStopped():
     metadataWrite.write( str( stoppedLine ) )
 
 class DataRetrieval:
+
+    # PUBLIC FUNCTIONS
+
     def __init__( self ):
         self.retrievedRunners = []
 
+    def retrieveData( self ):
         self._fileToAppend = open(DATA_FILE, "ab")
         self._retrieveDataWithScraping()
 
     def getPoints( self ):
-        return None
+        self._retrieveDataWithFile()
+        return self.retrievedRunners
+
+    # PRIVATE FUNCTIONS
 
     def _retrieveDataWithScraping( self ):
         for bibId in range( ID_LOW, ID_HIGH ):
+            print( bibId )
+
             scrapeURL = BASE_URL + str( bibId )
             retrievedRunner = self._scrapeAtUrl( scrapeURL )
 
             # order matters; we want to make sure the request has finished
             global stoppedLine
-            stoppedLine = bibId + 1
 
             if( retrievedRunner != None ):
-                self.retrievedRunners.append( retrievedRunner )
-                runnerAsByteString = pickle.dumps( retrievedRunner )
-                self._fileToAppend.write( runnerAsByteString )
+                pickle.dump( retrievedRunner, self._fileToAppend )
 
+            stoppedLine = bibId + 1
 
     def _scrapeAtUrl( self, url ):
         currentPage = requests.get( url )
@@ -83,4 +90,6 @@ class DataRetrieval:
         return theRunner
 
     def _retrieveDataWithFile( self ):
-        pass
+        with open( DATA_FILE, "rb" ) as dataFile:
+            currentRunner = pickle.load( dataFile )
+            self.retrievedRunners.append( currentRunner )

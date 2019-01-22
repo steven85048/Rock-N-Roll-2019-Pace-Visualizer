@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 
 from DataRetrieval import DataRetrieval
 
-Retrieval = DataRetrieval( 0 )
+Retrieval = DataRetrieval( )
+Retrieval.retrieveData()
 runners = Retrieval.getPoints()
 
 timePoints = []
