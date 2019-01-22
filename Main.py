@@ -2,15 +2,20 @@ import numpy as np
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
-from DataRetrieval import DataRetrieval
+from DataRetrieval import DataRetrieval, FilterType, Gender, Division
 
 Retrieval = DataRetrieval( )
 Retrieval.retrieveData()
+
+# set filters
+Retrieval.addDivisionFilter(Division.SC18_24)
+Retrieval.addGenderFilter(Gender.MALE)
+
 runners = Retrieval.getPoints()
 
 timePoints = []
 for runner in runners:
-    finishTime = runner['finishTime']
+    finishTime = runner['results']['finishTime']
     timeParts = finishTime.split(":")
 
     if( len(timeParts) != 3 or timeParts[0] == '' or timeParts[1] == '' or timeParts[2] == '' ):
