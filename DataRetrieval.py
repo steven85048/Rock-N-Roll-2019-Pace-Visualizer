@@ -91,5 +91,9 @@ class DataRetrieval:
 
     def _retrieveDataWithFile( self ):
         with open( DATA_FILE, "rb" ) as dataFile:
-            currentRunner = pickle.load( dataFile )
-            self.retrievedRunners.append( currentRunner )
+            try:
+                while( True ):
+                    currentRunner = pickle.load( dataFile )
+                    self.retrievedRunners.append( currentRunner )
+            except:
+                pass
